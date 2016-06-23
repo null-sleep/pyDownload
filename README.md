@@ -1,2 +1,7 @@
 # pyDownload
-An advance dowloader written in Python supporting download resume, download acceleration and a command line interface.
+An advance dowloader written in Python supporting several features such as:
+<li>Download Resume</li>
+<li>Authentication</li>
+<li>Command Line Interface</li>
+<li>Hash Check</li>
+<li>Server Output</li>
