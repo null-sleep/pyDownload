@@ -16,7 +16,7 @@ def check_os():
 		default_dest = 'C:\Users\{}\Downloads'.format(OS_uname)
 	elif OS == 'darwin':
 		default_dest = 'C/Users/{}/Downloads'.format(OS_uname)
-	else default_dest = -1
+	else: default_dest = -1
 	return default_dest
 
 def hash_check(default_dest, hash):
