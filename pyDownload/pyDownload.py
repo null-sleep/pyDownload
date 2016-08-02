@@ -53,7 +53,6 @@ def pyDownload(url, dest = check_os(), hash = None, timeout =10):
 	
 	chunk = 1000 * 1000
 	filename = get_file_name(url)
-	print (filename)
 	temp_path = dest + '\\' + filename
 	if os.path.exists(temp_path):
 		return
@@ -67,7 +66,6 @@ def pyDownload(url, dest = check_os(), hash = None, timeout =10):
 	file_size = -1
 	try:
 		file_size = int(urllib2.urlopen(url).info().get('Content-Length', -1))
-		print('Something happening?')
 		while open_size < file_size:
 			current_byte = open_size + chunk \
 				if open_size + chunk < file_size \
@@ -83,9 +81,11 @@ def pyDownload(url, dest = check_os(), hash = None, timeout =10):
 		print('IO Error - {}'.format(e))
 	finally:
 		if file_size == os.path.getsize(temp_path):
-			os.rename(temp_path,temp_path[:-5])
+			os.rename(temp_path,temp_path[:-4])
 
 url = 'https://www.safaribooksonline.com/library/cover/9780470532874/240h/'
 #url = 'http://blog.udacity.com/2014/05/how-to-bulk-rename-files-with-python.html'
 
+
 download = pyDownload(url)
+
