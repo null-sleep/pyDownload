@@ -1,63 +1,105 @@
 import os
-import requests
 import hashlib
 import sys
-import getpass
+#import getpass
+import urllib.parse
+from mimetypes import guess_extension
 try:
     import urllib.request as urllib2
 except ImportError:
     import urllib2
 
-def get_file_name(url):
-	name = url.split('/')[-1]
-	str(name)
-	if len(name) > 50 or name == '':
-		name = 'untitled'
+def get_file_name(url, flag = 1):
+	# Checks if url has query variables.
+	# If so, it tries to find the name of the file from it.
+	file_name = None
+	if flag == 1:
+		parsed = urllib.parse.urlparse(url)
+		params = urllib.parse.parse_qsl(parsed.query)
+		for x,y in params:
+			if x == 'name' or x =='Name' :
+				file_name = y
+
+		if file_name == None:
+			name = url.split('/')[-1]
+			if name == "":
+				name = url.split('/')[-2]
+
+		if len(name) > 50:
+			name = "untitled"
+	# flag = 1 for setting the name automatically, flag = -1 for user to set the name
+	elif flag == -1:
+		name = input('File Name:\n>>>')
 	return name
 
-def check_os(flag = 1):
+def set_default_paths(flag = 1):
+	"""
+	Used to set the deafult download location and the temporary file path
+	based on the enviornment
+	"""
 	OS = sys.platform
-	OS_uname = getpass.getuser()
-	
+	uname = os.getlogin() # Instead of longer pwd.getpwuid(os.getuid())[0]
 	default_dest = None
+	filename = get_file_name(url)
+
 	if flag == 1:
-		if OS == 'linux' or 'linux2' or 'Linux':
-			default_dest = '/home/{}/Downloads'.format(OS_uname)
-		if OS == 'win32' or 'Windows':
-			default_dest = 'C:\\Users\\{}\\Downloads'.format(OS_uname)
-		if OS == 'darwin':
-			default_dest = 'C/Users/{}/Downloads'.format(OS_uname)
-		if default_dest == None:
-			default_dest = os.getcwd()
-	if flag == -1:
-		default_dest = input(">>")
-	print(default_dest)
+		switch = {
+		'linux2': '/home/{}/Downloads/'.format(uname)+filename,
+		'win32': 'C:\\Users\\{}\\Downloads\\'.format(uname)+filename,
+		'darwin': 'C/Users/{}/Downloads/'.format(uname)+filename
+		}
+		default_dest = switch[OS]
+
+	if (flag == 2 or default_dest == None):
+		default_dest = os.getcwd() + '/'
+
+	if flag == 3:
+		default_dest = input(">") + '/'
 	return default_dest
 
-def hash_check(default_dest, hash):
-	m = hashlib.md5()
+def hash_check(file_dest, hash_value = None):
+	# Assumes you are using MD5 or SHA-256
+	if hash_value == None:
+		print('Error: No hash value provided.')
+		return -1
 
-	with open(default_dest, 'rb') as f:
-		while True:
-			chunk = f.read(1000 * 1000)
-			if not chunk:
-				break
-			m.update(chunk)
-	return m.hexadigest() == hash
+	result = None
+	if len(hash_value) == 32:
+		m = hashlib.md5()
+
+		with open(default_dest, 'rb') as f:
+			while True:
+				chunk = f.read(1024 * 1024)
+				if not chunk:
+					break
+				m.update(chunk)
+		result = m.hexadigest() == hash_value
+
+	if len(hash_value) == 64:
+		m = hashlib.sha256()
+
+		with open(default_dest, 'rb') as f:
+			while True:
+				chunk = f.read(1024 * 1024)
+				if not chunk:
+					break
+				m.update(chunk)
+		result = (m.hexadigest() == hash_value)
 
 
 
 
 
-def pyDownload(url, dest = check_os(), hash = None, timeout =10):
+
+def pyDownload(url, dest = 1, hash = None, timeout =10):
 	
 	chunk = 1000 * 1000
-	filename = get_file_name(url)
-	temp_path = dest + '\\' + filename
+	extension = guess_extension(urllib2.urlopen(url).info().get('Content-Type', -1).split()[0].rstrip(";"))
+	temp_path = set_default_paths(dest) + extension
 	if os.path.exists(temp_path):
 		return
-	temp_path = temp_path + '.pyd'
-	print(temp_path)
+	temp_path += '.pyd'
+
 	if os.path.exists(temp_path):
 		open_size = os.path.getsize(temp_path)
 	else:
