@@ -4,4 +4,3 @@ An advance dowloader written in Python supporting several features such as:
 <li>Authentication</li>
 <li>Command Line Interface</li>
 <li>Hash Check</li>
-<li>Server Output</li>
