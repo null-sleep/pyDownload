@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import os
 import requests
 import shutil
@@ -15,7 +16,7 @@ def download_file(url, start, end, part, file_name):
     r = requests.get(url, headers=headers, stream=True)
     with open(local_filename, 'ab') as f:
         shutil.copyfileobj(r.raw, f)
-	return local_filename
+    return local_filename
 
 def simple_download(url, file_name):
     try:
@@ -26,7 +27,7 @@ def simple_download(url, file_name):
     r = requests.get(url, headers=headers, stream=True)
     with open(local_filename, 'ab') as f:
         shutil.copyfileobj(r.raw, f)
-	return local_filename
+        return local_filename
 
 def get_file_name(url):
 	# Checks if url has query variables.
@@ -58,11 +59,11 @@ def merge(file_name):
 
 def call_threads(url, size, file_name):
 	# change thread calls to lambda function later
-	thread1 = Thread(target=download_file, (url, 0, (size/5), 1), file_name)
-	thread2 = Thread(target=download_file, (url, (size/5) + 1, (size/5)*2, 2), file_name)
-	thread3 = Thread(target=download_file, (url, ((size/5)*2) + 1, (size/5)*3, 3), file_name)
-	thread4 = Thread(target=download_file, (url, ((size/5)*3) + 1, (size/5)*4, 4), file_name)
-	thread5 = Thread(target=download_file, (url, ((size/5)*4) + 1, size, 5), file_name)
+	thread1 = Thread(target=download_file, args = (url, 0, (size/5), 1, file_name))
+	thread2 = Thread(target=download_file, args = (url, (size/5) + 1, (size/5)*2, 2, file_name))
+	thread3 = Thread(target=download_file, args = (url, ((size/5)*2) + 1, (size/5)*3, 3, file_name))
+	thread4 = Thread(target=download_file, args = (url, ((size/5)*3) + 1, (size/5)*4, 4, file_name))
+	thread5 = Thread(target=download_file, args = (url, ((size/5)*4) + 1, size, 5, file_name))
 	t = [thread1, thread2, thread3, thread4, thread5]
 	for x in t:
 		x.start()
